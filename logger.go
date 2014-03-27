@@ -13,6 +13,8 @@ var curr_ = &logbuf1
 var logbuf_ []LogRecord = (*curr_)[:0]
 var L sync.Mutex
 
+var timestamp_layout = "2006-01-02T15:04:05.00000"
+
 func log(r LogRecord) {
     L.Lock()
     logbuf_ = append(logbuf_, r)
@@ -40,8 +42,13 @@ func Logger() {
         file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY, 0660)
         if err == nil {
             for _, r := range mybuf {
-                fmt.Fprintf(file, "%s\t%s\t%s\t%s\n",
-                    r.ts, r.client, r.target, r.referer)
+                fmt.Fprintf(file,
+                    "%s\t%s\t%s\t%s\t%s\n",
+                    r.ts.Format(timestamp_layout),
+                    r.client,
+                    r.target,
+                    r.referer,
+                    r.useragent)
             }
             file.Close()
         } else {
