@@ -61,7 +61,7 @@ func clickHandler(w http.ResponseWriter, r *http.Request) {
 
     // log request
     logrecord := make_logrecord(r, dest)
-    log(logrecord)
+    Log(logrecord)
     
     http.Redirect(w, r, dest, 302)
 }
