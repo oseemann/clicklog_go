@@ -25,10 +25,10 @@ func Zipper(fname string) {
 	}
 }
 
-func check_zip() {
+func CheckZip(log_rotate_limit int64, zip_log_files bool) {
 	stat, err := os.Stat("log.txt")
 	if err == nil {
-		if stat.Size() > 10000000 {
+		if stat.Size() > log_rotate_limit {
 			fmt.Println("Log size: ", stat.Size())
 			tmpfile, err := ioutil.TempFile(".", "log_rotate_")
 			if err == nil {
@@ -43,7 +43,9 @@ func check_zip() {
 					fmt.Println("Error moving log.txt: ", err)
 					os.Exit(1)
 				}
-				go Zipper(tmpfile.Name())
+				if zip_log_files {
+					go Zipper(tmpfile.Name())
+				}
 			} else {
 				fmt.Println("Cannot create temp file for rotating ", err)
 				os.Exit(1)
@@ -55,13 +57,13 @@ func check_zip() {
 	}
 }
 
-func Logger() {
+func Logger(log_rotate_limit int64, zip_log_files bool) {
 	for {
 		n := len(log_queue)
 		if n == 0 {
 			time.Sleep(100 * time.Millisecond)
 		} else {
-			check_zip()
+			CheckZip(log_rotate_limit, zip_log_files)
 
 			file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY, 0660)
 			if err == nil {

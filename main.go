@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,6 +14,12 @@ type LogRecord struct {
 	target    string
 	referer   string
 	useragent string
+}
+
+type Options struct {
+	port             int
+	log_rotate_limit int64
+	zip_log_files    bool
 }
 
 var thisHost = "fry:8080"
@@ -66,8 +73,25 @@ func clickHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, dest, 302)
 }
 
+func ReadOptions() Options {
+	opt := Options{}
+
+	flag.IntVar(&opt.port, "port", 8080, "TCP Port to listen on")
+	flag.Int64Var(&opt.log_rotate_limit, "log_rotate_limit", 100000000,
+		"Size limit that triggers log file rotation")
+	flag.BoolVar(&opt.zip_log_files, "zip_log", true, "Zip rotated log files")
+
+	flag.Parse()
+
+	fmt.Println("log_rotate_limit = ", opt.log_rotate_limit)
+	fmt.Println("zip_log_files = ", opt.zip_log_files)
+
+	return opt
+}
+
 func main() {
-	go Logger()
+	opt := ReadOptions()
+	go Logger(opt.log_rotate_limit, opt.zip_log_files)
 	http.HandleFunc("/", root)
 	http.HandleFunc("/l", clickHandler)
 	http.ListenAndServe(":8080", nil)
