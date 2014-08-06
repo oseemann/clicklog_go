@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -83,8 +84,8 @@ func ReadOptions() Options {
 
 	flag.Parse()
 
-	fmt.Println("log_rotate_limit = ", opt.log_rotate_limit)
-	fmt.Println("zip_log_files = ", opt.zip_log_files)
+	log.Print("log_rotate_limit = ", opt.log_rotate_limit)
+	log.Print("zip_log_files = ", opt.zip_log_files)
 
 	return opt
 }
@@ -94,7 +95,7 @@ func main() {
 	go Logger(opt.log_rotate_limit, opt.zip_log_files)
 	http.HandleFunc("/", root)
 	http.HandleFunc("/l", clickHandler)
-	http.ListenAndServe(":8080", nil)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", opt.port), nil))
 }
 
 // vim: set filetype=go expandtab:

@@ -29,30 +29,30 @@ func CheckZip(log_rotate_limit int64, zip_log_files bool) {
 	stat, err := os.Stat("log.txt")
 	if err == nil {
 		if stat.Size() > log_rotate_limit {
-			fmt.Println("Log size: ", stat.Size())
+			log.Print("Log size: ", stat.Size())
 			tmpfile, err := ioutil.TempFile(".", "log_rotate_")
 			if err == nil {
-				fmt.Println("Rotate temp file: %s", tmpfile.Name())
+				log.Print("Rotate temp file: %s", tmpfile.Name())
 				tmpfile.Close()
 				err := os.Rename("log.txt", tmpfile.Name())
 				if err == nil {
 					file, _ := os.Create("log.txt")
 					file.Close()
-					fmt.Println("Recreated empty log.txt")
+					log.Print("Recreated empty log.txt")
 				} else {
-					fmt.Println("Error moving log.txt: ", err)
+					log.Print("Error moving log.txt: ", err)
 					os.Exit(1)
 				}
 				if zip_log_files {
 					go Zipper(tmpfile.Name())
 				}
 			} else {
-				fmt.Println("Cannot create temp file for rotating ", err)
+				log.Print("Cannot create temp file for rotating ", err)
 				os.Exit(1)
 			}
 		}
 	} else {
-		fmt.Println("Cannot stat log.txt: ", err)
+		log.Print("Cannot stat log.txt: ", err)
 		os.Exit(1)
 	}
 }
@@ -79,7 +79,7 @@ func Logger(log_rotate_limit int64, zip_log_files bool) {
 				}
 				file.Close()
 			} else {
-				fmt.Println(err)
+				log.Print(err)
 			}
 		}
 	}
