@@ -23,7 +23,7 @@ type Options struct {
 	zip_log_files    bool
 }
 
-var thisHost = "fry:8080"
+var thisHost = "localhost:8080"
 
 func root(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi!")
@@ -31,14 +31,12 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 func make_logrecord(request *http.Request, dest string) LogRecord {
 
-	// Referer
 	var referer string = "-"
 	raw_referer := request.Header["Referer"]
 	if len(raw_referer) > 0 {
 		referer = raw_referer[0]
 	}
 
-	// User Agent
 	var useragent string = "-"
 	raw_useragent := request.Header["User-Agent"]
 	if len(raw_useragent) > 0 {
@@ -64,10 +62,6 @@ func clickHandler(w http.ResponseWriter, r *http.Request) {
 		dest = "http://www.google.com/"
 	}
 
-	// check sanity of target url
-	// TODO
-
-	// log request
 	logrecord := make_logrecord(r, dest)
 	Log(logrecord)
 
